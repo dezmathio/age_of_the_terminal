@@ -4,6 +4,8 @@ A Conan-themed terminal-style text RPG. Type commands like `go north`, `take tor
 
 **Unofficial fan game.** Conan and the Hyborian Age are trademarks of their respective rights holders. Non-commercial.
 
+**Play:** [dezmathio.github.io/age_of_the_terminal](https://dezmathio.github.io/age_of_the_terminal/)
+
 ## Run locally
 
 ```bash
