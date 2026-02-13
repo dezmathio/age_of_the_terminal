@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/types.ts","./src/game/ascii.ts","./src/game/commands.ts","./src/game/inventory.ts","./src/game/parser.ts","./src/game/world.ts"],"version":"5.6.3"}

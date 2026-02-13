@@ -1,0 +1,113 @@
+/* Age of the Terminal — amber-on-black parchment vibe */
+:root {
+  --term-bg: #0a0806;
+  --term-fg: #c4a35a;
+  --term-dim: #8b7355;
+  --term-prompt: #e8c878;
+  --term-font: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--term-bg);
+  color: var(--term-fg);
+  font-family: var(--term-font);
+  font-size: 16px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 0;
+  width: 100%;
+}
+
+/* Output scrolls; input stays fixed at bottom of #app */
+.terminal-output {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding-bottom: 0.5rem;
+  /* Thin scrollbar that matches the terminal theme */
+  scrollbar-width: thin;
+  scrollbar-color: var(--term-dim) transparent;
+}
+
+.terminal-output::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+  background: var(--term-dim);
+  border-radius: 3px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+  background: var(--term-fg);
+}
+
+.terminal-output .line {
+  margin-bottom: 0.25em;
+}
+
+.terminal-output .input-echo {
+  color: var(--term-dim);
+  margin-bottom: 0.5em;
+}
+
+.terminal-input-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0 1rem;
+  border-top: 1px solid var(--term-dim);
+}
+
+.prompt {
+  color: var(--term-prompt);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--term-fg);
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+}
+
+.terminal-input::placeholder {
+  color: var(--term-dim);
+}
+
+.legal {
+  font-size: 0.7rem;
+  color: var(--term-dim);
+  text-align: center;
+  padding: 0.5rem 1rem;
+  max-width: 72ch;
+  margin: 0 auto;
+}

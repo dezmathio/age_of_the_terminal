@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Age of the Terminal</title>
+    <link rel="stylesheet" href="/src/terminal.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <div id="output" class="terminal-output"></div>
+      <div class="terminal-input-wrap">
+        <span class="prompt">&gt;</span>
+        <input
+          type="text"
+          id="input"
+          class="terminal-input"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Command"
+        />
+      </div>
+    </div>
+    <footer class="legal">
+      Age of the Terminal — A Conan Fan Game. Conan and the Hyborian Age are
+      trademarks of their respective rights holders. Unofficial, non-commercial
+      fan project.
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
