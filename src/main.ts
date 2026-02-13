@@ -4,6 +4,7 @@ import { getStartRoomId, getMaxScore } from "./game/world.js";
 import { TITLE, GAME_OVER, YOU_WIN } from "./game/ascii.js";
 import type { GameState } from "./types.js";
 
+const titleEl = document.getElementById("title") as HTMLDivElement;
 const outputEl = document.getElementById("output") as HTMLDivElement;
 const inputEl = document.getElementById("input") as HTMLInputElement;
 
@@ -34,11 +35,33 @@ function writeLines(text: string, className?: string): void {
   text.split("\n").forEach((line) => write(line, className));
 }
 
+function writeToTitle(text: string, className?: string): void {
+  const div = document.createElement("div");
+  div.className = className ?? "line";
+  div.textContent = text;
+  titleEl.appendChild(div);
+}
+
+function writeHelperLine(): void {
+  const div = document.createElement("div");
+  div.className = "line";
+  div.appendChild(document.createTextNode("Type a command and press Enter. Try: "));
+  const keywords = ["go east", "take torch", "inventory", "look", "help"];
+  keywords.forEach((kw, i) => {
+    if (i > 0) div.appendChild(document.createTextNode(", "));
+    const span = document.createElement("span");
+    span.className = "keyword";
+    span.textContent = kw;
+    div.appendChild(span);
+  });
+  titleEl.appendChild(div);
+}
+
 function showTitle(): void {
-  writeLines(TITLE.trim(), "line title");
-  write("");
-  write("Type a command and press Enter. Try: go east, take torch, inventory, look.");
-  write("");
+  TITLE.trim().split("\n").forEach((line) => writeToTitle(line, "line title"));
+  writeToTitle("");
+  writeHelperLine();
+  writeToTitle("");
 }
 
 function showStart(): void {

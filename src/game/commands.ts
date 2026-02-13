@@ -207,6 +207,12 @@ export function runCommand(
       state,
     };
   }
+  if (v === "help" || v === "?") {
+    return {
+      message: `Commands: go (n/s/e/w), take, drop, examine (x), inventory (i), open, wield, look (l), score, help (?)`,
+      state,
+    };
+  }
   if (v === "") {
     return { message: "", state };
   }
