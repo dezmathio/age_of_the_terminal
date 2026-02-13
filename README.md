@@ -19,11 +19,7 @@ Open the URL shown (e.g. http://localhost:5173).
 npm run build
 ```
 
-Output is in `dist/`. To deploy to GitHub Pages:
-
-1. Create a repo named `age-of-the-terminal` (or change `base` in `vite.config.ts` to match your repo name).
-2. Enable GitHub Pages in the repo: **Settings → Pages → Source: GitHub Actions**.
-3. Push the `main` branch; the workflow will build and deploy.
+Output is in `dist/`. With GitHub Pages (Source: GitHub Actions) enabled, pushing the `main` branch builds and deploys automatically.
 
 ## Commands
 
