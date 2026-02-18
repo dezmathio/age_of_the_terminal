@@ -1,5 +1,5 @@
 import type { GameState, Direction, RoomId } from "../types.js";
-import { getRoom, getRoomExits, getItem, getMaxScore } from "./world.js";
+import { getRoom, getRoomExits, getItem, getMaxScore, getMap } from "./world.js";
 import * as inv from "./inventory.js";
 import { ROOM_DIVIDER } from "./ascii.js";
 
@@ -18,17 +18,15 @@ const DIRECTION_WORDS: Set<string> = new Set([
   "d",
 ]);
 
-const SANCTUM_DOOR_FLAG = "sanctum_door_open";
-
 function canSeeInRoom(state: GameState, roomId: RoomId): boolean {
-  const room = getRoom(roomId);
+  const room = getRoom(state.currentMapId, roomId);
   if (!room) return true;
   if (!room.dark) return true;
   return inv.hasLight(state);
 }
 
 function describeRoom(state: GameState, roomId: RoomId): string {
-  const room = getRoom(roomId);
+  const room = getRoom(state.currentMapId, roomId);
   if (!room) return "You are nowhere.";
   const dark = room.dark && !inv.hasLight(state);
   const lines: string[] = [ROOM_DIVIDER, room.name, ROOM_DIVIDER, ""];
@@ -53,7 +51,7 @@ function describeRoom(state: GameState, roomId: RoomId): string {
 }
 
 function tryGo(state: GameState, dir: string): string {
-  const room = getRoom(state.currentRoomId);
+  const room = getRoom(state.currentMapId, state.currentRoomId);
   if (!room) return "You are nowhere.";
   const dirNorm =
     dir === "n"
@@ -71,15 +69,24 @@ function tryGo(state: GameState, dir: string): string {
                 : dir;
   const nextId = room.exits[dirNorm as Direction];
   if (!nextId) return `You cannot go ${dirNorm}.`;
-  if (nextId === "sanctum" && room.id === "hall" && !state.globalFlags.has(SANCTUM_DOOR_FLAG)) {
-    return "The door to the north is locked. You need a key.";
+
+  const map = getMap(state.currentMapId);
+  const locked = map?.lockedExits?.find(
+    (l) =>
+      l.fromRoomId === room.id &&
+      l.toRoomId === nextId &&
+      l.direction === dirNorm
+  );
+  if (locked && !state.globalFlags.has(locked.flag)) {
+    return `The door to the ${dirNorm} is locked. You need a key.`;
   }
+
   state.currentRoomId = nextId;
   return describeRoom(state, state.currentRoomId);
 }
 
 function tryTake(state: GameState, noun: string): string {
-  const room = getRoom(state.currentRoomId);
+  const room = getRoom(state.currentMapId, state.currentRoomId);
   if (!room) return "You are nowhere.";
   if (room.dark && !inv.hasLight(state)) return "It is too dark to see.";
   const id = resolveItemId(noun, room.items);
@@ -89,10 +96,12 @@ function tryTake(state: GameState, noun: string): string {
   state.score += 2;
   const idx = room.items.indexOf(id);
   if (idx !== -1) room.items.splice(idx, 1);
-  if (state.currentRoomId === "sanctum" && id === "jewel") {
+
+  const map = getMap(state.currentMapId);
+  if (map?.winCondition.roomId === state.currentRoomId && map.winCondition.itemId === id) {
+    state.score += 3;
     state.won = true;
     state.gameOver = true;
-    state.score += 3;
   }
   return `Taken.`;
 }
@@ -109,7 +118,7 @@ function resolveItemId(noun: string, itemIds: string[]): string | null {
 }
 
 function tryDrop(state: GameState, noun: string): string {
-  const room = getRoom(state.currentRoomId);
+  const room = getRoom(state.currentMapId, state.currentRoomId);
   if (!room) return "You are nowhere.";
   const id = resolveItemIdFromInventory(state, noun);
   if (!id) return `You don't have "${noun}".`;
@@ -130,7 +139,7 @@ function resolveItemIdFromInventory(state: GameState, noun: string): string | nu
 }
 
 function tryExamine(state: GameState, noun: string): string {
-  const room = getRoom(state.currentRoomId);
+  const room = getRoom(state.currentMapId, state.currentRoomId);
   if (!room) return "You are nowhere.";
   const inRoom = room.dark && !inv.hasLight(state) ? null : resolveItemId(noun, room.items);
   const inInv = resolveItemIdFromInventory(state, noun);
@@ -142,13 +151,16 @@ function tryExamine(state: GameState, noun: string): string {
 
 function tryOpen(state: GameState, noun: string): string {
   if (!noun || !noun.toLowerCase().includes("door")) return "Open what?";
-  const room = getRoom(state.currentRoomId);
-  if (!room || room.id !== "hall") return "There is no door to open here.";
-  if (state.globalFlags.has(SANCTUM_DOOR_FLAG)) return "The door is already open.";
-  if (!inv.hasItem(state, "brass_key")) return "You don't have the key.";
-  state.globalFlags.add(SANCTUM_DOOR_FLAG);
+  const room = getRoom(state.currentMapId, state.currentRoomId);
+  if (!room) return "You are nowhere.";
+  const map = getMap(state.currentMapId);
+  const locked = map?.lockedExits?.find((l) => l.fromRoomId === room.id);
+  if (!locked) return "There is no door to open here.";
+  if (state.globalFlags.has(locked.flag)) return "The door is already open.";
+  if (!inv.hasItem(state, locked.keyId)) return "You don't have the key.";
+  state.globalFlags.add(locked.flag);
   state.score += 3;
-  return "You unlock the heavy door with the brass key. It swings open.";
+  return `You unlock the heavy door with the ${getItem(locked.keyId)?.name ?? locked.keyId}. It swings open.`;
 }
 
 function tryWield(state: GameState, noun: string): string {
@@ -203,7 +215,7 @@ export function runCommand(
   }
   if (v === "score") {
     return {
-      message: `Your score: ${state.score} / ${getMaxScore()}.`,
+      message: `Your score: ${state.score} / ${getMaxScore(state.currentMapId)}.`,
       state,
     };
   }

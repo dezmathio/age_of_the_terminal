@@ -1,22 +1,30 @@
 import { parse } from "./game/parser.js";
 import { runCommand, getRoomDescription } from "./game/commands.js";
-import { getStartRoomId, getMaxScore } from "./game/world.js";
-import { TITLE, GAME_OVER, YOU_WIN } from "./game/ascii.js";
+import {
+  getFirstMapId,
+  getStartRoomId,
+  getMaxScore,
+  getNextMapId,
+  getMap,
+} from "./game/world.js";
+import { TITLE, GAME_OVER, YOU_WIN, MAP_COMPLETE } from "./game/ascii.js";
 import type { GameState } from "./types.js";
 
 const titleEl = document.getElementById("title") as HTMLDivElement;
 const outputEl = document.getElementById("output") as HTMLDivElement;
 const inputEl = document.getElementById("input") as HTMLInputElement;
 
-function createState(): GameState {
+function createState(mapId?: string): GameState {
+  const mid = mapId ?? getFirstMapId();
   return {
-    currentRoomId: getStartRoomId(),
+    currentMapId: mid,
+    currentRoomId: getStartRoomId(mid),
     inventory: new Set(),
     equipped: new Map(),
     roomFlags: new Map(),
     globalFlags: new Set(),
     score: 0,
-    maxScore: getMaxScore(),
+    maxScore: getMaxScore(mid),
     gameOver: false,
     won: false,
   };
@@ -93,6 +101,25 @@ function handleInput(raw: string): void {
 
   if (message) {
     writeLines(message);
+  }
+
+  if (state.gameOver && state.won) {
+    const nextMapId = getNextMapId(state.currentMapId);
+    if (nextMapId) {
+      write("");
+      writeLines(MAP_COMPLETE.trim());
+      write("");
+      const nextMap = getMap(nextMapId);
+      write(
+        `You descend into ${nextMap?.name ?? "the unknown"}...`,
+        "line"
+      );
+      write("");
+      state = createState(nextMapId);
+      writeLines(getRoomDescription(state));
+      scrollToBottom();
+      return;
+    }
   }
 
   if (state.gameOver) {

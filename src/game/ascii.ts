@@ -33,3 +33,9 @@ export const YOU_WIN = `
   ║     You have conquered the tower.                ║
   ╚═══════════════════════════════════════════════════╝
 `;
+
+export const MAP_COMPLETE = `
+  ╔═══════════════════════════════════════════════════╗
+  ║     Map complete! A new quest awaits…            ║
+  ╚═══════════════════════════════════════════════════╝
+`;

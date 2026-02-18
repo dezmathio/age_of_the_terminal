@@ -24,7 +24,25 @@ export interface ParsedCommand {
   raw: string;
 }
 
+export type MapId = string;
+
+/** Win condition: taking this item in this room completes the map. */
+export interface MapWinCondition {
+  roomId: RoomId;
+  itemId: string;
+}
+
+/** A locked exit: requires key + flag to pass. */
+export interface LockedExit {
+  fromRoomId: RoomId;
+  toRoomId: RoomId;
+  direction: Direction;
+  keyId: string;
+  flag: string;
+}
+
 export interface GameState {
+  currentMapId: MapId;
   currentRoomId: RoomId;
   inventory: Set<string>;
   equipped: Map<string, string>;
